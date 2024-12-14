@@ -25,38 +25,39 @@ const ThreeDayForecast = () => {
     });
   };
 
+  // API 호출 함수
   const fetchForecast = useCallback(async () => {
     setLoading(true);
     setError(null);
-  
+
     try {
       const dates = getThreeDays(); // 오늘, 내일, 모레 날짜 계산
       const baseTime = "0500"; // 기준 시간
-      const apiKey = process.env.REACT_APP_WEATHER_API_KEY; // Netlify 환경 변수에서 API 키 로드
-      const apiUrl = process.env.REACT_APP_WEATHER_API_ENDPOINT; 
-      // Netlify 환경 변수에서 API URL 로드
-  
+      const apiKey = process.env.REACT_APP_WEATHER_API_KEY; // 환경 변수에서 API 키 로드
+      const apiUrl = process.env.REACT_APP_WEATHER_API_ENDPOINT; // 환경 변수에서 API URL 로드
+
       // 3일에 대한 API 요청 생성
-      const response = await axios.get(apiUrl, {
-        params: {
-          serviceKey: apiKey,
-          pageNo: 1,
-          numOfRows: 200,
-          dataType: "JSON",
-          base_date: date,
-          base_time: time,
-          nx: 60,
-          ny: 127,
-        },
-      });
-      
-  
+      const requests = dates.map((baseDate) =>
+        axios.get(apiUrl, {
+          params: {
+            serviceKey: apiKey,
+            pageNo: 1,
+            numOfRows: 200,
+            dataType: "JSON",
+            base_date: baseDate,
+            base_time: baseTime,
+            nx: 60,
+            ny: 127,
+          },
+        })
+      );
+
       // 모든 요청 처리
       const responses = await Promise.all(requests);
       const rawItems = responses.flatMap((res) => res.data.response?.body?.items?.item || []);
-  
+
       if (!rawItems || rawItems.length === 0) throw new Error("API 데이터가 비어 있습니다.");
-  
+
       // 필요한 데이터를 정리
       const filteredData = rawItems
         .filter((item) => ["TMP", "POP", "SKY", "PTY"].includes(item.category)) // 필요한 카테고리만 필터링
@@ -71,7 +72,7 @@ const ThreeDayForecast = () => {
           acc[dateTimeKey][item.category] = item.fcstValue;
           return acc;
         }, {});
-  
+
       // 객체를 배열로 변환
       const formattedData = Object.entries(filteredData).map(([key, value]) => ({
         ...value,
@@ -80,7 +81,7 @@ const ThreeDayForecast = () => {
         sky: value.SKY || "-",
         rainType: value.PTY || "-",
       }));
-  
+
       setForecast(formattedData);
     } catch (err) {
       console.error("Error fetching forecast:", err);
@@ -117,7 +118,7 @@ const ThreeDayForecast = () => {
 
   return (
     <div className="three-day-forecast-container">
-      <h1 className="three-day-header">오늘 예보</h1>
+      <h1 className="three-day-header">3일간의 날씨 예보</h1>
       {loading ? (
         <p className="loading">로딩 중...</p>
       ) : error ? (
