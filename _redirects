@@ -1,1 +1,2 @@
 /getWeather https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/:splat 200
+http://* https://:splat 301!

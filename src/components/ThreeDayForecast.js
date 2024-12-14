@@ -33,23 +33,23 @@ const ThreeDayForecast = () => {
       const dates = getThreeDays(); // 오늘, 내일, 모레 날짜 계산
       const baseTime = "0500"; // 기준 시간
       const apiKey = process.env.REACT_APP_WEATHER_API_KEY; // Netlify 환경 변수에서 API 키 로드
-      const apiUrl = process.env.REACT_APP_WEATHER_API_ENDPOINT; // Netlify 환경 변수에서 API URL 로드
+      const apiUrl = process.env.REACT_APP_WEATHER_API_ENDPOINT; 
+      // Netlify 환경 변수에서 API URL 로드
   
       // 3일에 대한 API 요청 생성
-      const requests = dates.map((baseDate) =>
-        axios.get(`${apiUrl}/getVilageFcst`, {
-          params: {
-            serviceKey: apiKey,
-            pageNo: 1,
-            numOfRows: 200,
-            dataType: "JSON",
-            base_date: baseDate,
-            base_time: baseTime,
-            nx: 60,
-            ny: 127,
-          },
-        })
-      );
+      const response = await axios.get(apiUrl, {
+        params: {
+          serviceKey: apiKey,
+          pageNo: 1,
+          numOfRows: 200,
+          dataType: "JSON",
+          base_date: date,
+          base_time: time,
+          nx: 60,
+          ny: 127,
+        },
+      });
+      
   
       // 모든 요청 처리
       const responses = await Promise.all(requests);
