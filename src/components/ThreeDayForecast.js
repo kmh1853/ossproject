@@ -38,7 +38,7 @@ const ThreeDayForecast = () => {
 
       // 3일에 대한 API 요청 생성
       const requests = dates.map((baseDate) =>
-        axios.get(apiUrl, {
+        axios.get('/getWeather', {
           params: {
             serviceKey: apiKey,
             pageNo: 1,
