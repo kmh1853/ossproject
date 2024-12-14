@@ -72,15 +72,28 @@ const RealTimeWeather = () => {
     setLoading(true);
     setError(null);
     setWarning("");
-
-    const apiKey = process.env.REACT_APP_WEATHER_API_KEY;
-    const endpoint = process.env.REACT_APP_WEATHER_API_ENDPOINT;
-    const apiUrl = `${endpoint}/getVilageFcst?serviceKey=${apiKey}&pageNo=1&numOfRows=200&dataType=JSON&base_date=${date}&base_time=${time}&nx=60&ny=127`;
-
+  
+    const apiKey = process.env.REACT_APP_WEATHER_API_KEY; // 환경 변수에서 API 키 로드
+    const endpoint = process.env.REACT_APP_WEATHER_API_ENDPOINT; // 환경 변수에서 API 엔드포인트 로드
+    const apiUrl = `${endpoint}/getVilageFcst`; // API 엔드포인트 구성
+  
     try {
-      const response = await axios.get('/getWeather');
+      // Netlify의 `_redirects` 파일에 설정된 경로로 요청
+      const response = await axios.get('/getWeather', {
+        params: {
+          serviceKey: apiKey,
+          pageNo: 1,
+          numOfRows: 200,
+          dataType: "JSON",
+          base_date: date,
+          base_time: time,
+          nx: 60,
+          ny: 127,
+        },
+      });
+  
       const data = response.data.response.body.items.item;
-
+  
       if (!data || !data.length) {
         setWarning("현재 입력한 시간대는 조회할 수 없는 시간입니다. 가까운 시간대로 다시 시도해보세요.");
         setForecast({});
@@ -98,11 +111,13 @@ const RealTimeWeather = () => {
         setForecast(groupedData);
       }
     } catch (err) {
+      console.error("Error fetching weather data:", err);
       setError("날씨 데이터를 가져오는 데 실패했습니다.");
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="weather-container">

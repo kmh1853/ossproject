@@ -81,10 +81,22 @@ const ShortTermForecast = () => {
     const apiKey = process.env.REACT_APP_WEATHER_API_KEY;
     const endpoint = process.env.REACT_APP_WEATHER_API_ENDPOINT;
   
-    const apiUrl = `${endpoint}/getUltraSrtFcst?serviceKey=${apiKey}&pageNo=1&numOfRows=60&dataType=JSON&base_date=${date}&base_time=${time}&nx=60&ny=127`;
+    const apiUrl = `${endpoint}/getUltraSrtFcst`;
   
     try {
-      const response = await axios.get('/getWeather');
+      // API 호출
+      const response = await axios.get(apiUrl, {
+        params: {
+          serviceKey: apiKey,
+          pageNo: 1,
+          numOfRows: 60,
+          dataType: "JSON",
+          base_date: date,
+          base_time: time,
+          nx: 60,
+          ny: 127,
+        },
+      });
   
       console.log("API Response:", response.data); // API 응답 로깅
   
@@ -93,6 +105,7 @@ const ShortTermForecast = () => {
   
         console.log("Filtered Items:", items); // 필터링된 데이터 로깅
   
+        // 데이터 필터링
         const filteredItems = items.filter((item) => ["T1H", "POP", "SKY", "PTY"].includes(item.category));
         const groupedByTime = filteredItems.reduce((acc, item) => {
           if (!acc[item.fcstTime]) acc[item.fcstTime] = {};
@@ -100,6 +113,7 @@ const ShortTermForecast = () => {
           return acc;
         }, {});
   
+        // 데이터 가공
         const parsedData = Object.entries(groupedByTime).map(([time, values]) => ({
           time: `${time.slice(0, 2)}:00`,
           temperature: parseFloat(values.T1H || "0"),
@@ -123,6 +137,7 @@ const ShortTermForecast = () => {
       setLoading(false);
     }
   }, [ptyMapping, skyMapping]);
+  
   
 
   const prepareChartData = (data) => {
